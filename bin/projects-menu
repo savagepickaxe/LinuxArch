@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+ROOT="$HOME/projects"
+
+# --- Choix du projet ---
+project="$(find "$ROOT" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | \
+  rofi -dmenu -i -p "Projet")"
+
+[[ -z "$project" ]] && exit 0
+path="$ROOT/$project"
+
+# --- Question Docker ---
+choice="$(printf "Oui\nNon" | rofi -dmenu -i -p "Activer Docker (DDEV) ?")"
+[[ -z "$choice" ]] && exit 0
+
+if [[ "$choice" == "Oui" ]]; then
+  cd "$path"
+
+  if [[ -f ".ddev/config.yaml" ]]; then
+    ddev start &
+  fi
+
+  /usr/bin/code-oss "$path" &
+else
+  /usr/bin/code-oss "$path" &
+fi
+
